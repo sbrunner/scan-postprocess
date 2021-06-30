@@ -1,5 +1,6 @@
 from typing import Dict, List, TypedDict, Union
 
+
 # Arguments
 class Arguments(TypedDict, total=False):
     level: Union[bool, int]
