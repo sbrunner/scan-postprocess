@@ -4,6 +4,9 @@ headers: >
 # Automatically generated file from a JSON schema
 # Used to correctly format the generated file
 callbacks:
+  - - pyupgrade
+    - --py38-plus
+    - --exit-zero-even-if-changed
   - - black
   - - isort
 generate:
