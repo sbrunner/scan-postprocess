@@ -22,5 +22,5 @@ class Configuration(TypedDict, total=False):
     scan_folder: str
     scanimage: str
     scanimage_arguments: List[str]
-    default_args: 'Arguments'
+    default_args: "Arguments"
     viewer: str

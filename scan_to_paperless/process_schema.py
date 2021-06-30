@@ -25,20 +25,20 @@ class AssistedSplit(TypedDict, total=False):
     source: str
     destinations: List[Union[int, str]]
     image: str
-    limits: List['Limit']
+    limits: List["Limit"]
 
 
 # Configuration
 class Configuration(TypedDict, total=False):
     images: List[str]
     destination: str
-    args: 'Arguments'
-    steps: List['Step']
-    assisted_split: List['AssistedSplit']
+    args: "Arguments"
+    steps: List["Step"]
+    assisted_split: List["AssistedSplit"]
     transformed_images: List[str]
-    intermediate_error: List['IntermediateError']
-    images_config: Dict[str, '_ConfigurationImagesConfigAdditionalproperties']
-    images_status: Dict[str, '_ConfigurationImagesStatusAdditionalproperties']
+    intermediate_error: List["IntermediateError"]
+    images_config: Dict[str, "_ConfigurationImagesConfigAdditionalproperties"]
+    images_status: Dict[str, "_ConfigurationImagesStatusAdditionalproperties"]
 
 
 # Intermediate error

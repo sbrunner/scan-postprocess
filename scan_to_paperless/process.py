@@ -537,21 +537,15 @@ def fill_limits(image: np_ndarray_int, vertical: bool) -> List[scan_to_paperless
     prefix = "V" if vertical else "H"
     for index, peak in enumerate(peaks):
         value = int(round(properties["peak_heights"][index] / 3))
-        limits.append(
-            draw_line(image, vertical, peak, value, f"{prefix}L{index}", "line detection")
-        )
+        limits.append(draw_line(image, vertical, peak, value, f"{prefix}L{index}", "line detection"))
     for index, contour in enumerate(contours):
         limits.append(
-            draw_line(
-                image, vertical, contour, third_image_size, f"{prefix}C{index}", "contour detection"
-            )
+            draw_line(image, vertical, contour, third_image_size, f"{prefix}C{index}", "contour detection")
         )
     if not limits:
         half_image_size = image.shape[1 if vertical else 0] / 2
         limits.append(
-            draw_line(
-                image, vertical, half_image_size, third_image_size, f"{prefix}C", "image center"
-            )
+            draw_line(image, vertical, half_image_size, third_image_size, f"{prefix}C", "image center")
         )
 
     return limits
