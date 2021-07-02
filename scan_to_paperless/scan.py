@@ -52,6 +52,10 @@ def main() -> None:
         if choices is not None:
             arg.completer = ChoicesCompleter(choices)  # type: ignore
 
+    add_argument(
+        "--preset",
+        help="Use an alternate configuration",
+    )
     add_argument("--no-adf", dest="adf", action="store_false", help="Don't use ADF")
     add_argument(
         "--double-sided",
@@ -80,7 +84,8 @@ def main() -> None:
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
-    config: stp_config.Configuration = get_config()
+    config_file = CONFIG_PATH if args.preset is None else f'{CONFIG_PATH[:-5]}-{args.preset}.yaml'
+    config: stp_config.Configuration = get_config(config_file)
 
     dirty = False
     if args.get_config:
@@ -88,7 +93,7 @@ def main() -> None:
         yaml.default_flow_style = False
         stringio = nio.StringIO()
         yaml.dump(config, stringio)
-        print("Config from file: " + CONFIG_PATH)
+        print("Config from file: " + config_file)
         print(stringio.getvalue())
         sys.exit()
     for conf in args.set_config:
