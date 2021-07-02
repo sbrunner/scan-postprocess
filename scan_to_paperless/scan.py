@@ -7,6 +7,7 @@ import random
 import re
 import subprocess  # nosec
 import sys
+import io as nio
 from typing import Any, List, Optional, cast
 
 import argcomplete
@@ -44,8 +45,6 @@ def output(cmd: List[str], cmd2: Optional[List[str]] = None, **kwargs: Any) -> b
 
 
 def main() -> None:
-    config: stp_config.Configuration = get_config()
-
     parser = argparse.ArgumentParser()
 
     def add_argument(name: str, choices: Optional[List[str]] = None, **kwargs: Any) -> None:
@@ -66,6 +65,11 @@ def main() -> None:
     )
     add_argument("--assisted-split", action="store_true", help="Split operation, se help")
     add_argument(
+        "--get-config",
+        action="store_true",
+        help="Print the configuration and exit",
+    )
+    add_argument(
         "--set-config",
         nargs=2,
         action="append",
@@ -76,7 +80,17 @@ def main() -> None:
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
+    config: stp_config.Configuration = get_config()
+
     dirty = False
+    if args.get_config:
+        yaml = YAML()
+        yaml.default_flow_style = False
+        stringio = nio.StringIO()
+        yaml.dump(config, stringio)
+        print("Config from file: " + CONFIG_PATH)
+        print(stringio.getvalue())
+        sys.exit()
     for conf in args.set_config:
         config[conf[0]] = conf[1]  # type: ignore
         dirty = True
