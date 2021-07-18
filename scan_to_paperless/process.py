@@ -331,6 +331,8 @@ def crop(context: Context, margin_horizontal: int, margin_vertical: int) -> None
         image,
         context.get_px_value("min_box_size_crop", 3),
         context.config["args"].get("min_box_black_crop", 2),
+        context.get_px_value("box_block_size", 1.5),
+        context.config["args"].get("box_c", 25),
     )
 
     if contours:
@@ -541,9 +543,14 @@ def zero_ranges(values: np_ndarray_int) -> np_ndarray_int:
 
 
 def find_limit_contour(
-    image: np_ndarray_int, vertical: bool, min_box_size: float, min_box_black: Union[int, float]
+    image: np_ndarray_int,
+    vertical: bool,
+    min_box_size: float,
+    min_box_black: Union[int, float],
+    block_size: Union[float, int] = 17,
+    threshold_value_c: Union[float, int] = 25,
 ) -> Tuple[List[int], List[Tuple[int, int, int, int]]]:
-    contours = find_contours(image, min_box_size, min_box_black)
+    contours = find_contours(image, min_box_size, min_box_black, block_size, threshold_value_c)
     image_size = image.shape[1 if vertical else 0]
 
     values = np.zeros(image_size)
@@ -570,6 +577,8 @@ def fill_limits(
         vertical,
         context.get_px_value("min_box_size_limit", 10),
         context.config["args"].get("min_box_black_limit", 2),
+        context.get_px_value("box_block_size", 1.5),
+        context.config["args"].get("box_c", 25),
     )
     for contour_limit in contours:
         draw_rectangle(image, vertical, contour_limit)
@@ -599,12 +608,19 @@ def fill_limits(
 
 
 def find_contours(
-    image: np_ndarray_int, min_size: Union[float, int], min_black: Union[float, int]
+    image: np_ndarray_int,
+    min_size: Union[float, int],
+    min_black: Union[float, int],
+    block_size: Union[float, int] = 16,
+    threshold_value_c: Union[float, int] = 25,
 ) -> List[Tuple[int, int, int, int]]:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    block_size = int(round(block_size / 2) * 2)
 
     # Clean the image using otsu method with the inversed binarized image
-    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 17, 25)
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, block_size, threshold_value_c
+    )
 
     # Assign a rectangle kernel size
     kernel = np.ones((5, 5), "uint8")
@@ -619,7 +635,9 @@ def find_contours(
             contour_image = crop_image(image, x, y, width, height, (255, 255, 255))
             contour_image = rgb2gray(contour_image)
             if ((1 - np.mean(contour_image)) * 100) > min_black:
-                result.append((x + 8, y + 8, width - 16, height - 16))
+                result.append(
+                    (x + block_size / 2, y + block_size / 2, width - block_size, height - block_size)
+                )
 
     return result
 
@@ -671,6 +689,8 @@ def transform(
             context.get_masked(),
             context.get_px_value("min_box_size_empty", 20),
             context.config["args"].get("min_box_black_crop", 2),
+            context.get_px_value("box_block_size", 1.5),
+            context.config["args"].get("box_c", 25),
         )
         if not contours:
             print("Ignore image with no content: {}".format(img))
